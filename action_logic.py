@@ -62,7 +62,7 @@ while True:
         if track_id not in detections:
             active_objects[track_id]["missing_frames"] += 1
 
-            if active_objects[track_id]["missing_frames"] == 30:
+            if active_objects[track_id]["missing_frames"] == 90:
                 # Check if any person was near this object before disappearance
                 for pid, pbbox in person_last_seen.items():
                     if iou(active_objects[track_id]["bbox"], pbbox) > 0.1:
