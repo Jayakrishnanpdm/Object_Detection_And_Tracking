@@ -43,7 +43,7 @@ while True:
     if not ret:
         break
 
-    results = model.track(frame, persist=True, conf=0.35)
+    results = model.track(frame, persist=True, conf=0.5)
     detections = get_detections(results)
 
     # Update tracking

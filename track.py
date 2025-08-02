@@ -13,7 +13,7 @@ while True:
         break
 
     # Run YOLO detection + tracking
-    results = model.track(frame, persist=True, conf=0.35)
+    results = model.track(frame, persist=True, conf=0.5)
 
     # Draw bounding boxes + IDs
     annotated_frame = results[0].plot()

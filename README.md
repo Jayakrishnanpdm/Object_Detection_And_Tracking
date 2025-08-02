@@ -45,3 +45,16 @@ pip install -r requirements.txt
 ### 4️⃣ Test YOLO Detection
 python detect_demo.py
 
+# Base Logic
+[Frame N]
+ ├─ Detect person & object (YOLOv8)
+ ├─ Identify HR using face recognition
+ ├─ If person != HR AND near object
+ │     └─ Mark person as suspicious
+ │     └─ Save frame as last_seen_frame
+ ├─ If object is missing
+ │     └─ Increment object_missing_counter
+ │     └─ If object_missing_counter >= 90 AND suspicious_detected:
+ │           └─ Send alert with last_seen_frame
+ │           └─ Reset counters
+ ├─ If object reappears → reset object_missing_counter
