@@ -8,7 +8,7 @@ from collections import defaultdict
 from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
 import mediapipe as mp
-# from alert import send_email_alert, send_telegram_alert  # Comment out if not available
+from alert import send_email_alert, send_telegram_alert  # Comment out if not available
 
 @dataclass
 class Config:
@@ -317,7 +317,7 @@ class ImprovedTheftDetector:
         # Criterion 4: Recent meaningful interaction (more lenient)
         recent_interactions = [
             i for i in obj.interaction_history 
-            if current_time - i.timestamp <= 15.0  # Increased time window
+            if current_time - i.timestamp <= 25.0  # Increased time window
         ]
         if not recent_interactions:
             print(f"   ❌ FAIL: No recent interactions within 15 seconds")
@@ -344,7 +344,7 @@ class ImprovedTheftDetector:
         # Get recent interactions (more lenient time window)
         recent_interactions = [
             i for i in obj.interaction_history
-            if current_time - i.timestamp <= 15.0 and  # Increased window
+            if current_time - i.timestamp <= 25.0 and  # Increased window
             i.confidence >= 0.2  # Reduced threshold
         ]
         
@@ -418,8 +418,8 @@ class ImprovedTheftDetector:
         
         try:
             # Uncomment these when alert functions are available
-            # send_email_alert(image_path, alert_msg)
-            # send_telegram_alert(image_path, alert_msg)
+            send_email_alert(image_path, alert_msg)
+            send_telegram_alert(image_path, alert_msg)
             
             print(alert_msg)
             print(f"="*60)
@@ -950,7 +950,7 @@ def main():
         cap = cv2.VideoCapture(source)
         if cap.isOpened():
             print(f"📷 Camera source {source} opened successfully")
-            break
+            break      
         cap.release()
     
     if cap is None or not cap.isOpened():
