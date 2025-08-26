@@ -1,0 +1,54 @@
+# ========================
+# Python / YOLOv8 Project
+# ========================
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Virtual Environments
+venv/
+env/
+.venv/
+ENV/
+yolo-venv/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+
+# YOLOv8 Output
+runs/
+datasets/
+
+# Optional YOLOv8 exports (comment out if needed)
+*.tflite
+*.onnx
+*.engine
+*.ncnn
+
+# Custom weights (except yolov8n.pt)
+weights/
+!weights/yolov8n.pt
+
+# OS/System files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor settings
+.vscode/
+.idea/
+
+# User-defined
+output/
+temp/

@@ -9,7 +9,7 @@ from email.mime.image import MIMEImage
 def send_email_alert(image_path, message):
     sender_email = "jay.work.developer@gmail.com"
     sender_password = "anje vvtv dyiw oglg"  # Use App Password if Gmail
-    receiver_email = "jayakrishnan9446718962@gmail.com"
+    receiver_email = "noble.mathew@uvjtech.com"
 
     msg = MIMEMultipart()
     msg["From"] = sender_email

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink Watch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .eye-logo {
+            width: 100%;
+            height: 100%;
+            fill: white;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .status-active {
+            background: linear-gradient(45deg, #00d4aa, #00a8ff);
+        }
+
+        .status-alert {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            animation: alertPulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes alertPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            min-height: calc(100vh - 100px);
+        }
+
+        .video-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .alert-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-item {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #ff4757, #ff3838);
+        }
+
+        .alert-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: #ff4757;
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .alert-details {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .evidence-item {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .alert-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .alert-image:hover {
+            transform: scale(1.02);
+        }
+
+        .objects-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .object-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .object-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .object-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .object-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .object-safe {
+            background: linear-gradient(45deg, #00d4aa, #00a8ff);
+        }
+
+        .object-interacted {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+        }
+
+        .object-missing {
+            background: linear-gradient(45deg, #ff6b6b, #ff4757);
+        }
+
+        .object-details h4 {
+            margin-bottom: 0.2rem;
+            font-weight: 600;
+        }
+
+        .object-status {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00d4aa;
+        }
+
+        .status-warning {
+            background: #feca57;
+            animation: pulse 1s infinite;
+        }
+
+        .status-danger {
+            background: #ff4757;
+            animation: alertPulse 1s infinite;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .sidebar {
+                grid-template-columns: 1fr 1fr;
+                display: grid;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                grid-template-columns: 1fr;
+                display: flex;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 8s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg class="eye-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C7 2 2.73 5.11 1 9.5C2.73 13.89 7 17 12 17s9.27-3.11 11-7.5C21.27 5.11 17 2 12 2zM12 15c-1.93 0-3.5-1.57-3.5-3.5S10.07 8 12 8s3.5 1.57 3.5 3.5S13.93 15 12 15z"/>
+                        <circle cx="12" cy="11.5" r="2.5"/>
+                    </svg>
+                </div>
+                <div>
+                    <span style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; font-weight:900; font-size:34px; color:#00f5d4; text-shadow:0 0 6px rgba(0,245,212,0.9), 0 0 16px rgba(0,194,255,0.8); letter-spacing:0.6px;">
+                        Blink⏱Watch
+                    </span>
+<p style="
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  color: white;
+  text-shadow: 0 1px 2px rgb(252, 250, 250);
+  text-align: center;
+">
+  <em>"If it's Gone, You Will Know"</em>
+               </div>
+            </div>
+            <div class="status-badge status-active" id="systemStatus">
+                🟢 System Active
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="video-section">
+            <div class="video-container">
+                <div class="video-placeholder">
+                    <div style="text-align: center;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">📹</div>
+                        <div>Live Camera Feed</div>
+                        <div style="font-size: 0.9rem; opacity: 0.5; margin-top: 0.5rem;">
+                            Connect your camera to see live detection
+                        </div>
+                    </div>
+                    <div class="video-overlay">
+                        <div style="font-size: 0.9rem;">
+                            <div>🎯 Detection: Active</div>
+                            <div>📊 FPS: <span id="fpsCounter">30.0</span></div>
+                            <div>⏱️ Runtime: <span id="runtime">00:00:00</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="objectsDetected">3</div>
+                    <div class="stat-label">Objects Tracked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="personsDetected">2</div>
+                    <div class="stat-label">Persons Detected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="interactionsCount">31</div>
+                    <div class="stat-label">Interactions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="alertsCount">1</div>
+                    <div class="stat-label">Theft Alerts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="alert-panel">
+                <div class="panel-title">
+                    🚨 Recent Alerts
+                </div>
+                <div id="alertsList">
+                    <div class="alert-item">
+                        <div class="alert-header">
+                            <div class="alert-title">THEFT DETECTED</div>
+                            <div class="alert-time">13:18:11</div>
+                        </div>
+                        <div class="alert-details">
+                            <strong>📱 Cell Phone</strong> stolen by <strong>Person #1</strong>
+                            <div style="margin-top: 0.5rem; color: #feca57;">
+                                ⚠️ Unauthorized person detected
+                            </div>
+                        </div>
+                        <div class="evidence-grid">
+                            <div class="evidence-item">
+                                <div>Confidence: <strong>88%</strong></div>
+                            </div>
+                            <div class="evidence-item">
+                                <div>Duration: <strong>0.4s</strong></div>
+                            </div>
+                            <div class="evidence-item">
+                                <div>Interactions: <strong>7</strong></div>
+                            </div>
+                            <div class="evidence-item">
+                                <div>Score: <strong>0.17</strong></div>
+                            </div>
+                        </div>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iIzJjM2U1MCIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iNjAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iI2VjZjBmMSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+VGhlZnQgQWxlcnQgU2NyZWVuc2hvdCAtIENlbGwgUGhvbmU8L3RleHQ+CiAgPHJlY3QgeD0iNTAiIHk9IjMwIiB3aWR0aD0iODAiIGhlaWdodD0iNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmNDc1NyIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPHRleHQgeD0iOTAiIHk9IjI1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNmZjQ3NTciPkNFTEwgUEhPTkU8L3RleHQ+CiAgPHJlY3QgeD0iMjcwIiB5PSIyMCIgd2lkdGg9IjYwIiBoZWlnaHQ9IjgwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjQ3NTciIHN0cm9rZS13aWR0aD0iMyIvPgogIDx0ZXh0IHg9IjMwMCIgeT0iMTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2ZmNDc1NyI+U1VTUEVDVCA8L3RleHQ+Cjwvc3ZnPgo=" 
+                             alt="Theft Alert Screenshot" 
+                             class="alert-image" 
+                             onclick="openModal(this.src)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="objects-panel">
+                <div class="panel-title">
+                    📦 Tracked Objects
+                </div>
+                <div id="objectsList">
+                    <div class="object-item">
+                        <div class="object-info">
+                            <div class="object-icon object-missing">📱</div>
+                            <div class="object-details">
+                                <h4>Cell Phone #18</h4>
+                                <div class="object-status">STOLEN - Missing for 60+ frames</div>
+                            </div>
+                        </div>
+                        <div class="status-indicator status-danger"></div>
+                    </div>
+
+                    <div class="object-item">
+                        <div class="object-info">
+                            <div class="object-icon object-interacted">💻</div>
+                            <div class="object-details">
+                                <h4>Laptop #5</h4>
+                                <div class="object-status">TOUCHED - 31 interactions</div>
+                            </div>
+                        </div>
+                        <div class="status-indicator status-warning"></div>
+                    </div>
+
+                    <div class="object-item">
+                        <div class="object-info">
+                            <div class="object-icon object-safe">🍾</div>
+                            <div class="object-details">
+                                <h4>Bottle #8</h4>
+                                <div class="object-status">SAFE - No interactions</div>
+                            </div>
+                        </div>
+                        <div class="status-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="imageModal" onclick="closeModal()">
+        <div class="modal-content">
+            <img id="modalImage" class="modal-image" alt="Alert Evidence">
+        </div>
+    </div>
+
+    <script>
+        // Initialize particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Update runtime counter
+        let startTime = Date.now();
+        function updateRuntime() {
+            const elapsed = Date.now() - startTime;
+            const hours = Math.floor(elapsed / 3600000).toString().padStart(2, '0');
+            const minutes = Math.floor((elapsed % 3600000) / 60000).toString().padStart(2, '0');
+            const seconds = Math.floor((elapsed % 60000) / 1000).toString().padStart(2, '0');
+            document.getElementById('runtime').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Simulate real-time updates
+        function simulateUpdates() {
+            // Update FPS with slight variation
+            const fps = (28 + Math.random() * 4).toFixed(1);
+            document.getElementById('fpsCounter').textContent = fps;
+
+            // Randomly update stats (simulating real detection)
+            if (Math.random() < 0.1) {
+                const interactions = parseInt(document.getElementById('interactionsCount').textContent);
+                document.getElementById('interactionsCount').textContent = interactions + 1;
+            }
+
+            if (Math.random() < 0.05) {
+                const persons = parseInt(document.getElementById('personsDetected').textContent);
+                document.getElementById('personsDetected').textContent = Math.max(1, persons + (Math.random() < 0.5 ? 1 : -1));
+            }
+        }
+
+        // Modal functions
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Simulate alert system status changes
+        function updateSystemStatus() {
+            const statusElement = document.getElementById('systemStatus');
+            const alertsCount = parseInt(document.getElementById('alertsCount').textContent);
+            
+            if (alertsCount > 0) {
+                statusElement.className = 'status-badge status-alert';
+                statusElement.innerHTML = '🚨 Theft Detected';
+            } else {
+                statusElement.className = 'status-badge status-active';
+                statusElement.innerHTML = '🟢 System Active';
+            }
+        }
+
+        // Add new alert function (for integration with your Python system)
+        function addNewAlert(alertData) {
+            const alertsList = document.getElementById('alertsList');
+            const newAlert = document.createElement('div');
+            newAlert.className = 'alert-item';
+            newAlert.style.animation = 'slideIn 0.5s ease';
+            
+            newAlert.innerHTML = `
+                <div class="alert-header">
+                    <div class="alert-title">THEFT DETECTED</div>
+                    <div class="alert-time">${alertData.time}</div>
+                </div>
+                <div class="alert-details">
+                    <strong>📱 ${alertData.object}</strong> stolen by <strong>Person #${alertData.suspect}</strong>
+                    <div style="margin-top: 0.5rem; color: #feca57;">
+                        ⚠️ Unauthorized person detected
+                    </div>
+                </div>
+                <div class="evidence-grid">
+                    <div class="evidence-item">
+                        <div>Confidence: <strong>${alertData.confidence}%</strong></div>
+                    </div>
+                    <div class="evidence-item">
+                        <div>Duration: <strong>${alertData.duration}s</strong></div>
+                    </div>
+                    <div class="evidence-item">
+                        <div>Interactions: <strong>${alertData.interactions}</strong></div>
+                    </div>
+                    <div class="evidence-item">
+                        <div>Score: <strong>${alertData.score}</strong></div>
+                    </div>
+                </div>
+                ${alertData.image ? `<img src="${alertData.image}" alt="Theft Alert Screenshot" class="alert-image" onclick="openModal(this.src)">` : ''}
+            `;
+            
+            alertsList.insertBefore(newAlert, alertsList.firstChild);
+            
+            // Update alerts count
+            const alertsCount = parseInt(document.getElementById('alertsCount').textContent) + 1;
+            document.getElementById('alertsCount').textContent = alertsCount;
+            
+            // Update system status
+            updateSystemStatus();
+        }
+
+        // Initialize
+        createParticles();
+        updateSystemStatus();
+        
+        // Set up intervals
+        setInterval(updateRuntime, 1000);
+        setInterval(simulateUpdates, 2000);
+
+        // Add CSS animation for new alerts
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-100px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Expose functions for Python integration
+        window.theftDetectionUI = {
+            addAlert: addNewAlert,
+            updateStats: function(stats) {
+                document.getElementById('objectsDetected').textContent = stats.objects || 0;
+                document.getElementById('personsDetected').textContent = stats.persons || 0;
+                document.getElementById('interactionsCount').textContent = stats.interactions || 0;
+                document.getElementById('alertsCount').textContent = stats.alerts || 0;
+                updateSystemStatus();
+            }
+        };
+
+        console.log('🚀 Theft Detection UI Loaded!');
+        console.log('Use window.theftDetectionUI.addAlert() to add new alerts');
+        console.log('Use window.theftDetectionUI.updateStats() to update statistics');
+    </script>
+</body>
+</html>
